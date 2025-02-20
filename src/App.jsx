@@ -11,21 +11,35 @@ const generateSudoku = () => {
   ];
 };
 
+// Function to check if the Sudoku board is valid
 const isValidSudoku = (grid) => {
   for (let i = 0; i < 5; i++) {
-    let rowSet = new Set(), colSet = new Set();
+    let rowSet = new Set();
+    let colSet = new Set();
+
     for (let j = 0; j < 5; j++) {
-      if (grid[i][j] !== 0) {
-        if (rowSet.has(grid[i][j])) return false;
-        rowSet.add(grid[i][j]);
+      let rowValue = grid[i][j];
+      let colValue = grid[j][i];
+
+      // Check row uniqueness
+      if (rowValue !== 0) {
+        if (rowSet.has(rowValue)) return false;
+        rowSet.add(rowValue);
       }
-      if (grid[j][i] !== 0) {
-        if (colSet.has(grid[j][i])) return false;
-        colSet.add(grid[j][i]);
+
+      // Check column uniqueness
+      if (colValue !== 0) {
+        if (colSet.has(colValue)) return false;
+        colSet.add(colValue);
       }
     }
   }
   return true;
+};
+
+// Function to check if the Sudoku is completely solved
+const isSudokuSolved = (grid) => {
+  return grid.flat().every((cell) => cell !== 0) && isValidSudoku(grid);
 };
 
 export default function App() {
@@ -35,18 +49,19 @@ export default function App() {
 
   useEffect(() => {
     setIsValid(isValidSudoku(grid));
+    setIsSolved(isSudokuSolved(grid));
   }, [grid]);
 
   const handleChange = (row, col, value) => {
-    if (value >= 1 && value <= 5) {
+    if (value === "" || (value >= 1 && value <= 5)) {
       const newGrid = grid.map((r) => [...r]);
-      newGrid[row][col] = parseInt(value) || 0;
+      newGrid[row][col] = value === "" ? 0 : parseInt(value);
       setGrid(newGrid);
     }
   };
 
   const checkSolution = () => {
-    if (isValidSudoku(grid) && grid.flat().every((cell) => cell !== 0)) {
+    if (isSudokuSolved(grid)) {
       setIsSolved(true);
     } else {
       setIsSolved(false);
